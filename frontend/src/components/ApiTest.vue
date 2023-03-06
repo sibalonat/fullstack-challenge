@@ -63,17 +63,8 @@ const moodIcon = (e) => {
 }
 
 const userSelect = (u) => {
-  console.log(u);
   userSelected.value = u
 }
-
-onMounted(() => {
-  // Weather
-  // WeatherWidget
-  // console.log(apiResponse.value);
-})
-
-// WeatherWidget
 
 
 </script>
@@ -105,18 +96,12 @@ onMounted(() => {
       :overlay-transition="options.overlayTransition" :content-transition="options.contentTransition"
       :click-to-close="options.clickToClose" :esc-to-close="options.escToClose" :background="options.background"
       :lock-scroll="options.lockScroll" :swipe-to-close="options.swipeToClose" class="flex items-center justify-center"
-      content-class="max-w-xl p-4 mx-4 space-y-2 bg-white border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+      content-class="max-w-[60%] w-full p-4 mx-4 space-y-2 bg-white border rounded-lg dark:bg-gray-900 dark:border-gray-700">
       <h1 class="text-sm italic">
         Hello <span class="ml-2 text-xl not-italic"> {{ userSelected.name }} </span>
       </h1>
-      <!-- <p>
-          Magna deserunt nulla aliquip velit aute. Et occaecat elit nulla excepteur labore cupidatat. Duis culpa mollit
-          commodo dolor qui Lorem qui laborum elit elit Lorem occaecat. Commodo eiusmod esse voluptate officia amet quis
-          occaecat aliqua. Proident do irure amet ut occaecat dolor laboris consectetur.
-        </p> -->
       <div class="flex w-full">
         <VueWeather :api-key="publicEnvVar" units="uk" :latitude="userSelected.latitude" :longitude="userSelected.longitude" />
-
       </div>
       <button @click="options.modelValue = false">
         Close

@@ -30,6 +30,7 @@ const loading = ref(true)
 const weather = ref(null)
 const error = ref(null)
 const timeout = ref(null)
+const publicEnvVar = import.meta.env.VITE_WEATHER;
 
 // props
 const prop = defineProps({
@@ -149,6 +150,7 @@ const reverseGeocode = (apiKey, lat, lng) => {
 const fetchOWMWeather = async (opts = {}) => {
     opts.units = opts.units || "auto";
     opts.language = opts.language || "en";
+
     if (!opts.lat || !opts.lng) {
         throw new Error("Geolocation is required");
     }
@@ -156,18 +158,21 @@ const fetchOWMWeather = async (opts = {}) => {
     const units = UNIT_MAPPINGS[opts.units] || "standard";
 
     const resp = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${opts.lat}&lon=${opts.lng}&appid=${publicEnvVar}&units=${units}&lang=${opts.language}`
+        `https://api.openweathermap.org/data/3.0/onecall?appid=${publicEnvVar}&lat=${opts.lat}&lon=${opts.lng}&units=${units}&lang=${opts.language}`
     );
     const data = await resp.json();
     return mapData(data);
 }
 
 const mapData = (data) => {
-    const { current } = data;
+    const {current} = data;
+    // console.log(data);
     const { weather } = current;
+    console.log(weather);
     const [currentWeather] = weather;
     const { description, icon } = currentWeather;
     const iconName = mapIcon(icon);
+    // console.log(iconName);
 
     return {
         currently: Object.assign({}, current, {
@@ -204,15 +209,15 @@ const mapIcon = (code) => {
 }
 
 const loadWeather = async () => {
-    const fetchWeatherMethod = fetchOWMWeather;
-    const data = await fetchWeatherMethod({
+    const data = await fetchOWMWeather({
         apiKey: prop.apiKey,
         lat: prop.latitude,
         lng: prop.longitude,
         units: prop.units,
         language: prop.language,
     });
-    // this.$set(this, "weather", data);
+    console.log(data);
+    weather.value = data
 }
 
 const autoupdate = () => {
@@ -225,18 +230,18 @@ const autoupdate = () => {
 }
 
 const hydrate = (setLoading = true) => {
-    // this.$set(this, "loading", setLoading);
+    loading.value = setLoading
     return nextTick()
         .then(processLocation)
         .then(loadWeather)
         .then(() => {
-            // this.$set(this, "error", null);
+            error.value = null
         })
         .catch((err) => {
-            // this.$set(this, "error", "" + err);
+            error.value = err
         })
         .finally(() => {
-            // this.$set(this, "loading", false);
+            loading.value = false
             autoupdate();
         });
 }
@@ -244,26 +249,12 @@ const hydrate = (setLoading = true) => {
 const processLocation = () => {
     if (!prop.latitude || !prop.longitude) {
         throw new Error("VueWeatherWidget: Latitude or longitude is required");
-    } else {
-
     }
 }
 
 
 
-
-// watchers
-// watch([prop.apiKey, prop.latitude, prop.longitude, prop.language, prop.units, prop.updateInterval], ([newAPi, newLat, newLon, newLang, newUn, newUpdate]) => {
-//     newAPi = "hydrate"
-//     newLat = "hydrate"
-//     newLon = "hydrate"
-//     newLang = "hydrate"
-//     newUn = "hydrate"
-//     newUpdate = "hydrate"
-// })
-
 onMounted(() => {
-    console.log(Skycon);
     hydrate();
 })
 
@@ -311,7 +302,7 @@ const daily = computed(() => {
         if (day.time <= today) {
             day.weekName = "Today";
         } else {
-            day.weekName = new Date(day.time * 1000).toLocaleDateString(this.language, {
+            day.weekName = new Date(day.time * 1000).toLocaleDateString(prop.language, {
                 weekday: "short",
             });
         }
@@ -323,14 +314,6 @@ const daily = computed(() => {
     }
     return forecasts;
 })
-// const currently = computed({
-//     get() {
-//         return userFromClick.value
-//     },
-//     set(obj) {
-//       userFromClick.value = obj
-//     }
-// })
 
 </script>
 <template>
